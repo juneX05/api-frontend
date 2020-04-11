@@ -88,7 +88,6 @@
 <script>
     import sidebar from "./components/sidebar";
     import navbar_items from "./router/navbar_routes";
-    import cookies from 'js-cookie';
     export default {
         name:'App',
         components: {sidebar},
@@ -109,31 +108,7 @@
                 return this.$store.state.token;
             },
         },
-        created() {
-            this.checkAuth();
-        },
         methods: {
-            navDrawer(){
-                if(this.$vuetify.breakpoint.mdAndUp)
-                    this.drawer = true;
-                else
-                    return false;
-            },
-            checkAuth(){
-                const token = cookies.get('x-access-token');
-                if (token === undefined){
-                    this.$axios.post('/refresh-token')
-                    .then(({data}) => {
-                        this.$store.dispatch('setToken',data);
-                    })
-                    .catch(() => {
-                        //error
-                    });
-                }
-                else{
-                    this.$store.commit('SET_TOKEN',token);
-                }
-            },
             logout() {
                 this.$axios.post('logout')
                     .then( () => {

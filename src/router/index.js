@@ -28,22 +28,23 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
     if (cookies.get('x-access-token') === undefined){
-        axiosInstance.post('/refresh-token')
-            .then(({data}) => {
-                store.dispatch('setToken',data);
-                next();
-            })
-            .catch(() => {
-                if(to.meta.auth === 'middle') {
-                    return next()
-                }
-                else if (to.meta.auth){
+        if(to.meta.auth === 'middle') {
+            return next()
+        }
+        else if (to.meta.auth){
+            axiosInstance.post('/refresh-token')
+                .then(({data}) => {
+                    store.dispatch('setToken',data);
+                    return next();
+                })
+                .catch(() => {
                     return next({name:'login'})
-                }
-                else{
-                    return next()
-                }
-            })
+                })
+        }
+        else{
+            return next()
+        }
+
     }
     else {
         if (to.meta.auth === 'middle') {
