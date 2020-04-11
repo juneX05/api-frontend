@@ -7,6 +7,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     token:null,
+    user:null,
   },
   mutations: {
     SET_TOKEN(state,token){
@@ -24,10 +25,10 @@ export default new Vuex.Store({
       commit('SET_TOKEN', token);
     },
 
-    async refreshToken({dispatch}){
-      const {token, expiresIn} = await this._vm.$axios.post('refresh-token');
-      dispatch('setToken', {token, expiresIn});
-    },
+    // async refreshToken({dispatch}){
+    //   const {token, expiresIn} = await this._vm.$axios.post('refresh-token');
+    //   dispatch('setToken', {token, expiresIn});
+    // },
 
     logout({commit}){
       delete this._vm.$axios.defaults.headers.common.Authorization;
