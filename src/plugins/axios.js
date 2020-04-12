@@ -6,7 +6,7 @@ import store from '../store/index';
 
 const refreshTokenUrl = '/refresh-token';
 let axiosInstance = axios.create({
-   baseURL : 'https://hy-sys.herokuapp.com/api',
+   baseURL : 'https://hy-api.herokuapp.com/api',
    withCredentials : true,
 });
 
