@@ -23,7 +23,7 @@ const routes = navbar_routes.concat(sidebar_routes,extra_routes);
 
 const router = new VueRouter({
     mode: 'history',
-    routes:routes
+    routes:routes,
 });
 
 router.beforeEach((to, from, next) => {
