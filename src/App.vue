@@ -1,5 +1,9 @@
 <template>
     <v-app dark>
+        <v-overlay :value="loading" :opacity="1">
+            <v-progress-circular indeterminate size="64"></v-progress-circular>
+        </v-overlay>
+
         <v-navigation-drawer
                 v-if="!$vuetify.breakpoint.mdAndUp || isLoggedIn"
                 v-model="drawer"
@@ -111,6 +115,9 @@
             isLoggedIn() {
                 return this.$store.state.token;
             },
+            loading(){
+                return this.$store.state.loading;
+            }
         },
         created(){
             this.refreshToken();
@@ -118,12 +125,24 @@
         },
         methods: {
             refreshToken(){
-                this.$axios.post('/refresh-token')
+                this.$store.state.loading = true;
+                return this.$axios.post('/refresh-token')
                     .then(({data}) => {
                         this.$store.dispatch('setToken',data);
+                        if (this.$route.name === 'login') {
+                            this.$router.push({name:'dashboard'})
+                            .then( () => {
+                                this.$store.state.loading = false;
+                            });
+                        }
+                        else {
+                            this.$store.state.loading = false;
+                        }
+
                         return true
                     })
                     .catch(() => {
+                        this.$store.state.loading = false;
                         return false
                     })
             },

@@ -8,6 +8,7 @@ export default new Vuex.Store({
   state: {
     token:null,
     user:null,
+    loading:true,
   },
   mutations: {
     SET_TOKEN(state,token){
