@@ -82,12 +82,16 @@
                 </v-list-item>
             </v-list>
         </v-navigation-drawer> -->
+        <!-- set progressbar -->
+        <vue-progress-bar></vue-progress-bar>
     </v-app>
 </template>
 
 <script>
     import sidebar from "./components/sidebar";
     import navbar_items from "./router/navbar_routes";
+    import cookies from "js-cookie";
+
     export default {
         name:'App',
         components: {sidebar},
@@ -108,15 +112,62 @@
                 return this.$store.state.token;
             },
         },
+        created(){
+            this.refreshToken();
+            this.routerInitialize();
+        },
         methods: {
+            refreshToken(){
+                this.$axios.post('/refresh-token')
+                    .then(({data}) => {
+                        this.$store.dispatch('setToken',data);
+                        return true
+                    })
+                    .catch(() => {
+                        return false
+                    })
+            },
+            routerInitialize(){
+                this.$router.beforeEach((to, from, next) => {
+                    this.$Progress.start();
+                    if (cookies.get('x-access-token') === undefined){
+                        if(to.meta.auth === 'middle') {
+                            return next()
+                        }
+                        else if (to.meta.auth){
+                            if(this.refreshToken()){
+                                return next()
+                            }
+                            else {
+                                return next({name:'login'});
+                            }
+                        }
+                        else{
+                            return next()
+                        }
+                    }
+                    else {
+                        if (to.meta.auth === 'middle') {
+                            next({name:'dashboard'})
+                        }
+                        else {
+                            next()
+                        }
+                        this.$store.commit('SET_TOKEN',cookies.get('x-access-token'));
+                    }
+                });
+                this.$router.afterEach( () => {
+                    this.$Progress.finish();
+                })
+            },
             logout() {
                 this.$axios.post('logout')
                     .then( () => {
                         this.$store.dispatch('logout');
                         this.$router.push('/');
                     })
-                    .catch(errors => {
-                        console.dir(errors);
+                    .catch(() => {
+                        // console.dir(errors);
                     });
             }
         }

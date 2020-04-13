@@ -3,16 +3,17 @@ import router from '../router/index';
 import axios from "axios";
 import cookies from 'js-cookie';
 import store from '../store/index';
+import app from '../main';
 
 const refreshTokenUrl = '/refresh-token';
 let axiosInstance = axios.create({
-   baseURL : 'https://hy-api.herokuapp.com/api',
+   baseURL : 'http://api.local/api',
    withCredentials : true,
 });
 
-
 axiosInstance.interceptors.request.use(
     config => {
+        app.$Progress.start();
         const token = cookies.get('x-access-token');
         if (token) {
             config.headers['Authorization'] = 'Bearer ' + token;
@@ -23,12 +24,16 @@ axiosInstance.interceptors.request.use(
     // eslint-disable-next-line no-unused-vars
     error => {
         // Promise.reject(error);
+        console.clear();
+        app.$Progress.fail();
     }
     );
 
 axiosInstance.interceptors.response.use((response) => {
+    app.$Progress.finish();
     return response
 }, function (error) {
+    app.$Progress.fail();
     const originalRequest = error.config;
 
     if (error.response.status === 401 && originalRequest.url === refreshTokenUrl){
@@ -47,6 +52,7 @@ axiosInstance.interceptors.response.use((response) => {
             })
     }
 
+    console.clear();
     return false//Promise.reject(error);
 });
 
